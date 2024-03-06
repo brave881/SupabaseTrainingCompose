@@ -55,6 +55,7 @@ import io.github.jan.supabase.gotrue.Auth
 import io.github.jan.supabase.gotrue.auth
 import io.github.jan.supabase.postgrest.Postgrest
 import io.github.jan.supabase.postgrest.from
+import io.github.jan.supabase.postgrest.query.Columns
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -337,7 +338,13 @@ fun CountriesList() {
     LaunchedEffect(Unit) {
         withContext(Dispatchers.IO) {
             countries = supabase.from("countries")
-                .select().decodeList<Country>()
+
+                .select(Columns.ALL){
+                    filter {
+                        Country::user_id eq supabase.auth.currentUserOrNull()?.id
+                    }
+                }
+                .decodeList<Country>()
         }
     }
 
